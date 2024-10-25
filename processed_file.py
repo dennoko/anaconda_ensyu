@@ -24,7 +24,7 @@ def processed_file():
             for filename in files:
                 if filename.endswith('.wav'):
                     original_file_path = os.path.join(root, filename)
-                    print(f"Processing file: {original_file_path}")
+                    # print(f"Processing file: {original_file_path}")
 
                     # 音声ファイルを読み込み
                     sound = AudioSegment.from_wav(original_file_path)
@@ -42,6 +42,6 @@ def processed_file():
                         
                         # 加工後のファイルを保存
                         trimmed_sound.export(processed_file_path, format="wav")
-                        print(f"Processed file saved to: {processed_file_path}")
+                        # print(f"Processed file saved to: {processed_file_path}")
                 else:
                     print(f"No significant sound found in file: {original_file_path}")
