@@ -8,4 +8,7 @@ def main():
     processed_file()
 
     # 整形済みデータに対する処理
+
+if __name__ == '__main__':
+    main()
     
