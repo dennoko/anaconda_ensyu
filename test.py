@@ -4,6 +4,7 @@
 from data_processor.get_harmonic_amplitude import get_harmonic_amplitude
 import os
 from pydub import AudioSegment
+import numpy as np
 
 # 音声データを data/processed/GIBSON_SG_SPETIAL/SG_SPETIAL_CENTERから取得
 # フォルダのパス
