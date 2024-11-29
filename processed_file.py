@@ -36,12 +36,13 @@ def processed_file():
                         # トリミング位置を決定
                         start_trim = nonsilent_ranges[0][0]
                         trimmed_sound = sound[start_trim:]
-
+                        mono_sound = trimmed_sound.set_channels(1)
+                        
                         # 加工後のファイルの保存先パスを設定
                         processed_file_path = os.path.join(new_folder_path, filename)
                         
                         # 加工後のファイルを保存
-                        trimmed_sound.export(processed_file_path, format="wav")
+                        mono_sound.export(processed_file_path, format="wav")
                         # print(f"Processed file saved to: {processed_file_path}")
                 else:
                     print(f"No significant sound found in file: {original_file_path}")

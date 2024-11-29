@@ -8,7 +8,7 @@ import numpy as np
 
 # 音声データを data/processed/GIBSON_SG_SPETIAL/SG_SPETIAL_CENTERから取得
 # フォルダのパス
-data_path = "data/processed/GIBSON_SG_SPECIAL/SG_SPECIAL_CENTER"
+data_path = "data/original_32bit/ST32/ST32_CENTER"
 print("test.py: " + data_path)
 # フォルダ内の各ファイルでループを回す
 for root, dirs, files in os.walk(data_path):
@@ -43,9 +43,9 @@ for root, dirs, files in os.walk(data_path):
             base_frequency = 82.407
 
         # 音声ファイルを読み込み
-        sound = AudioSegment.from_wav(file_path)
+        sound_file = AudioSegment.from_wav(file_path)
         # 音声データをリストに変換
-        sound = sound.get_array_of_samples()
+        sound = sound_file.get_array_of_samples()
         # 音の倍音成分の大きさをdbで取得
         harmonics = get_harmonic_amplitude(sound, base_frequency)
         print(harmonics)
