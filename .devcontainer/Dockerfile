@@ -14,3 +14,5 @@ RUN if [ -f "/tmp/conda-tmp/environment.yml" ]; then umask 0002 && /opt/conda/bi
 RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 # pydub のインストール
 RUN pip install pydub
+# requests のインストール
+RUN pip install requests
