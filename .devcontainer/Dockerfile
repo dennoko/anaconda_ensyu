@@ -16,3 +16,5 @@ RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 RUN pip install pydub
 # requests のインストール
 RUN pip install requests
+# openai のインストール
+RUN pip install openai
