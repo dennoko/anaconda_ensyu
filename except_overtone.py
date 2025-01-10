@@ -1,10 +1,11 @@
 import numpy as np
+import re
 from scipy.signal import find_peaks
 from scipy.fft import fft, fftfreq, ifft
 from pydub import AudioSegment
 import matplotlib.pyplot as plt
 
-def get_wave_sexcept_overtone(samples, frame_rate, string_num):
+def get_wave_sexcept_overtone(samples, frame_rate, string_num, octave):
     # 窓幅と刻みの設定
     # window_size = len(sample)
     # step_size = len(sample)
@@ -29,11 +30,15 @@ def get_wave_sexcept_overtone(samples, frame_rate, string_num):
         
         spectrum_magnitude = np.abs(spectrum)
         
-        base = extract_string_base_freq(string_num)
+        base = extract_string_base_freq(string_num[0])
+        if octave == True:
+            base *= 2
         peaks, _ = find_peaks(spectrum_magnitude, height=0.05*np.max(spectrum_magnitude), distance = base//frequencies[1]) 
         peak_freqs = frequencies[peaks]
         peak_spectrum = spectrum[peaks]
-        
+        if start == 0:
+            print(base)
+            print(peak_freqs)
         # 倍音のみのスペクトルに再構築
         reconstructed_spectrum = np.zeros_like(spectrum, dtype=complex)
         for j in range(0, len(peaks)):
@@ -73,26 +78,33 @@ def filter_get_overtone(string_num, peak_freq):
     return overtone_idx
 
 # 元の波形と再構築した波形の差を出力
-def get_difference(samples, frame_rate, sound):
-    reconstructed_wave = get_wave_sexcept_overtone(samples, frame_rate, sound)
+def get_difference(samples, frame_rate, string_num, octave):
+    reconstructed_wave = get_wave_sexcept_overtone(samples, frame_rate, string_num, octave)
     original_wave = np.abs(samples[0:len(reconstructed_wave)])
     difference_wave = np.abs(original_wave - np.abs(reconstructed_wave))
     
     rate_diff = np.sum(difference_wave) / np.sum(original_wave)
     return rate_diff * 100
 
-# if __name__ == '__main__':
-#     # ギターのWAVファイルを読み込む
-#     file_name = "./data/processed/ST32_CENTER/ST_CENTER_1.wav"
-#     sound = AudioSegment.from_wav(file_name)
-#     samples = np.array(sound.get_array_of_samples())
-#     sample_rate = sound.frame_rate # サンプリングレート
+if __name__ == '__main__':
+    # ギターのWAVファイルを読み込む
+    file_name = "./data/processed/ST32_CENTER/ST_CENTER_12_2.wav"
+    sound = AudioSegment.from_wav(file_name)
+    samples = np.array(sound.get_array_of_samples())
+    sample_rate = sound.frame_rate # サンプリングレート
 
-#     extension = ".wav"
-#     string_num = []
-#     base_name = file_name[:-len(extension)]
-#     if base_name[-1].isdigit():
-#         string_num.append(int(base_name[-1]))
+    extension = ".wav"
+    string_num = []
+    base_name = file_name[:-len(extension)]
+    if base_name[-1].isdigit():
+        string_num.append(int(base_name[-1]))
+        
+    match = re.search(r'(\d+)_\d+$', base_name)
+    octave = False
+    if match:
+        octave = True
+    # if 
+    print(octave)
 
-#     #音量エンベロープをプロット
-#     print(get_difference(samples, sample_rate, sound))
+    #音量エンベロープをプロット
+    print(get_difference(samples, sample_rate, string_num, octave))
