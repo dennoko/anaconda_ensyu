@@ -1,6 +1,4 @@
 from openai import OpenAI
-import openai
-from openai import OpenAI
 
 def chat_gpt_api_request(prompt):
     """
