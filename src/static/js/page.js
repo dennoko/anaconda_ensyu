@@ -2,9 +2,9 @@
 document.addEventListener('DOMContentLoaded', async () => {
   try {
       // ヘッダーとフッター，画像の内容を読み込み、挿入 (flaskなら)
-      // const headerResponse = await fetch("/static/component/header.html");
+      const headerResponse = await fetch("/static/component/header.html");
       // ローカルならパスはこっち
-      const headerResponse = await fetch("/src/static/component/header.html");
+      // const headerResponse = await fetch("/src/static/component/header.html");
     
       const headerHTML = await headerResponse.text();
       document.getElementById('header').innerHTML = headerHTML;
@@ -14,9 +14,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       // document.getElementById('footer').innerHTML = footerHTML;
 
       // flask
-      // const imageResponse = await fetch('/static/component/guitarImage.html');
+      const imageResponse = await fetch('/static/component/guitarImage.html');
       // ローカル
-      const imageResponse = await fetch('/src/static/component/guitarImage.html');
+      // const imageResponse = await fetch('/src/static/component/guitarImage.html');
       const imageHTML = await imageResponse.text();
       document.getElementById('guitarImage').innerHTML = imageHTML;
       // 現在のページのパスを取得

@@ -14,7 +14,7 @@ def index():
     return render_template('page.html')
 
 # ファイルアップロードの処理
-@app.route('/upload', methods=['POST'])
+@app.route('/uploads', methods=['POST'])
 def upload_file():
     if 'files[]' not in request.files:
         return jsonify({'error': 'ファイルがありません'}), 400
@@ -29,6 +29,18 @@ def upload_file():
         saved_files.append(file.filename)
 
     return jsonify({'message': 'アップロード成功', 'files': saved_files}), 200
+
+@app.route('/mypage')
+def mypage():
+    return render_template('mypage.html')
+
+@app.route('/page')
+def page():
+    return render_template('page.html')
+
+@app.route('/all_reviews')
+def all_reviews():
+    return render_template('all_reviews.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,5 +1,25 @@
 const dropArea = document.getElementById('drop_area');
 
+function createFormData(files) {
+    const formData = new FormData();
+    Array.from(files).forEach((file) => {
+        formData.append('files[]', file); // サーバー側が期待するキー名を使用
+    });
+    return formData;
+}
+function fileUpload(formData) {
+    fetch('/uploads', {
+        method: 'POST',
+        body: formData,
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        console.log('アップロード成功:', data);
+    })
+    .catch((error) => {
+        console.error('アップロード失敗:', error);
+    });
+}
 // ドラッグした状態で要素内に入ったとき
 dropArea.addEventListener('dragover', function(e) {
     // デフォルトの動作を止めて、要素のスタイルを変える
@@ -25,7 +45,23 @@ dropArea.addEventListener('drop', function(e) {
     const formData = createFormData(files);
     fileUpload(formData);
 });
+dropArea.addEventListener('drop', function(e) {
+    // デフォルトの動作を無効化
+    e.preventDefault();
+    dropArea.style.background = '#ffffff';
 
+    // ドロップされたファイルを取得
+    const files = e.dataTransfer.files;
+
+    // FormData オブジェクトを作成
+    const formData = new FormData();
+    Array.from(files).forEach((file) => {
+        formData.append('files[]', file);
+    });
+
+    // アップロード処理を呼び出す
+    fileUpload(formData);
+});
 // JavaScriptのドラッグ＆ドロップ実装
 // const dropArea = document.getElementById('drop_area');
 const fileList = document.getElementById('file_list');
