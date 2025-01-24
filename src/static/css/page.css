@@ -41,7 +41,7 @@
 .logo {
   width: 50px;
   font-size: 25px;
-  color: #8f8f8f;
+  color: #4d4d4f;
   text-transform: uppercase;
   float: left;
   display: block;
@@ -136,7 +136,7 @@ nav ul a {
 }
 
 body {
-  color: #8f8f8f;
+  color: #4d4d4f;
   background: #f2f2f2;
   font-family: "Cardo", serif;
   font-weight: 300;
@@ -157,8 +157,9 @@ h1 {
 
 p {
   margin-bottom: 20px;
-  font-size: 17px;
+  font-size: 20px;
   line-height: 2;
+  font-weight: 100;
 }
 
 .content {
@@ -313,5 +314,35 @@ p {
 }
 
 .main div h2 {
+  font-size: 30px;
+}
+
+.guitar-info {
+  display: flex;
+  column-gap: 16px;
+
+}
+/* 
+.guitar-info h2 {
+  font-size: 40px;
+} */
+.guitar-details h3{
+  border-bottom: 2px solid #8f8f8f;
+  display: inline-block; /* インライン要素にする */
+  position: relative;
+  margin: 10px 0 0;
   font-size: 25px;
+  ::after {
+    content: ''; /* 下線を作成する */
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%; /* 幅を文字列の長さに合わせる */
+    height: 2px; /* 下線の太さ */
+    background-color: black; /* 下線の色 */
+  }
+}
+
+.guitar-details p {
+  margin: 8px 0 0;
 }
