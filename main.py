@@ -2,6 +2,7 @@ import os
 import csv
 from pydub import AudioSegment
 import re
+import json
 
 # 関数のインポート
 from check_volume import get_db
@@ -10,6 +11,9 @@ from check_attack_time import get_attack_time
 from check_sustain import get_db_at_time
 from processed_file import processed_file
 from except_overtone import get_difference
+from api.chatgpt_api_with_openai import chat_gpt_api_request
+from api.chatgpt_api_with_openai import init_prompt
+from api.chatgpt_api_with_openai import add_prompt
 
 def process_audio_files(input_dir, output_dir):
     data_by_pickup = {}
@@ -115,6 +119,43 @@ def process_audio_files(input_dir, output_dir):
             csv_writer.writerows(rows)
 
         print(f"Processed data for {guitar_name} - {pickup_position} -> {csv_path}")
+        
+        # chat-gptのプロンプトを生成して、chat-gptにリクエストを送信
+        prompt = init_prompt(guitar_name)
+
+        with open(csv_path, "r") as f:
+            data = f.read()
+
+        prompt = add_prompt(prompt, "以下は{guitar_name}の音に関するcsvデータです。これを元に、指定した項目について評価してください。")
+        prompt = add_prompt(prompt, data)
+
+        # chat-gptのレスポンスをguitar.jsonに追加
+        # guitar.jsonのフォーマットは以下の通り
+        # [
+        #     {
+        #       "ギター名": "ギター名",
+        #       "メーカー": "メーカー",
+        #       "メーカーの国": "メーカーの国",
+        #       "音のバランスの評価": "音のバランスの評価",
+        #       "サステインの評価": "サステインの評価",
+        #       "レスポンスの評価": "レスポンスの評価",
+        #       "倍音の評価": "倍音の評価",
+        #       "トーンの評価": "トーンの評価",
+        #       "総合評価": "総合評価"
+        #     }
+        # ]
+        # responseは配列の要素の形式で返ってくるので、配列に追加する
+        response = chat_gpt_api_request(prompt)
+
+        with open("guitar.json", "r") as f:
+            guitar_json = json.load(f)
+
+        guitar_json.append(response)
+
+        with open("guitar.json", "w") as f:
+            json.dump(guitar_json, f, ensure_ascii=False, indent=4)
+
+        print(f"Chat-GPT response for {guitar_name} - {pickup_position} -> guitar.json")
 
 # 入力ディレクトリと出力ディレクトリを設定
 processed_file()
