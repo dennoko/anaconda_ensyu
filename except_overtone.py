@@ -86,25 +86,25 @@ def get_difference(samples, frame_rate, string_num, octave):
     rate_diff = np.sum(difference_wave) / np.sum(original_wave)
     return rate_diff * 100
 
-if __name__ == '__main__':
-    # ギターのWAVファイルを読み込む
-    file_name = "./data/processed/ST32_CENTER/ST_CENTER_12_2.wav"
-    sound = AudioSegment.from_wav(file_name)
-    samples = np.array(sound.get_array_of_samples())
-    sample_rate = sound.frame_rate # サンプリングレート
+# if __name__ == '__main__':
+#     # ギターのWAVファイルを読み込む
+#     file_name = "./data/processed/ST32_CENTER/ST_CENTER_12_2.wav"
+#     sound = AudioSegment.from_wav(file_name)
+#     samples = np.array(sound.get_array_of_samples())
+#     sample_rate = sound.frame_rate # サンプリングレート
 
-    extension = ".wav"
-    string_num = []
-    base_name = file_name[:-len(extension)]
-    if base_name[-1].isdigit():
-        string_num.append(int(base_name[-1]))
+#     extension = ".wav"
+#     string_num = []
+#     base_name = file_name[:-len(extension)]
+#     if base_name[-1].isdigit():
+#         string_num.append(int(base_name[-1]))
         
-    match = re.search(r'(\d+)_\d+$', base_name)
-    octave = False
-    if match:
-        octave = True
-    # if 
-    print(octave)
+#     match = re.search(r'(\d+)_\d+$', base_name)
+#     octave = False
+#     if match:
+#         octave = True
+#     # if 
+#     print(octave)
 
-    #音量エンベロープをプロット
-    print(get_difference(samples, sample_rate, string_num, octave))
+#     #音量エンベロープをプロット
+#     print(get_difference(samples, sample_rate, string_num, octave))

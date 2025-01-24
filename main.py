@@ -1,13 +1,15 @@
 import os
 import csv
 from pydub import AudioSegment
+import re
 
 # 関数のインポート
 from check_volume import get_db
 from check_overtone import get_overtone
 from check_attack_time import get_attack_time
-from check_sustain import get_sustain
+from check_sustain import get_db_at_time
 from processed_file import processed_file
+from except_overtone import get_difference
 
 def process_audio_files(input_dir, output_dir):
     data_by_pickup = {}
@@ -38,7 +40,7 @@ def process_audio_files(input_dir, output_dir):
                 # 出力CSVキー
                 csv_key = (guitar_name, pickup_position)
                 if csv_key not in data_by_pickup:
-                    data_by_pickup[csv_key] = {"Attack Time": {}, "Sustain": {}, "Overtones": {}}
+                    data_by_pickup[csv_key] = {"Volume":{}, "Attack Time": {}, "Sustain": {}, "Overtones": {}, "Except_Overtone": {}}
 
                 csv_path = os.path.join(output_dir, f"{guitar_name}_{pickup_position}.csv")
                 os.makedirs(os.path.dirname(csv_path), exist_ok=True)
@@ -55,20 +57,33 @@ def process_audio_files(input_dir, output_dir):
                 # 処理結果の取得
                 max_db = sound.max_dBFS
                 attack_time = get_attack_time(samples, sound.frame_rate)
-                sustain = get_sustain(samples, sound.frame_rate, max_db)
+                sustain = get_db_at_time(samples, sound.frame_rate, 3.0, max_db)
                 overtone_freqs, overtone_mags = get_overtone(samples, sound.frame_rate, sound.duration_seconds)
                 overtone_formatted = "_".join([f"{freq:.2f}:{mag:.2e}" for freq, mag in zip(overtone_freqs, overtone_mags)])
+                extension = ".wav"
+                string_num = []
+                base_name = file_name[:-len(extension)]
+                if base_name[-1].isdigit():
+                    string_num.append(int(base_name[-1]))
+                    
+                match = re.search(r'(\d+)_\d+$', base_name)
+                octave = False
+                if match:
+                    octave = True
+                except_overtone = get_difference(samples, sound.frame_rate, string_num, octave)
                 
                 if fret12_flag == True:
-                    data_by_pickup[csv_key]["Attack Time"][fret12] = max_db
+                    data_by_pickup[csv_key]["Volume"][fret12] = max_db
                     data_by_pickup[csv_key]["Attack Time"][fret12] = attack_time
                     data_by_pickup[csv_key]["Sustain"][fret12] = sustain
                     data_by_pickup[csv_key]["Overtones"][fret12] = overtone_formatted
+                    data_by_pickup[csv_key]["Except_Overtone"][fret12] = except_overtone
                 else:
-                    data_by_pickup[csv_key]["Attack Time"][fret] = max_db
+                    data_by_pickup[csv_key]["Volume"][fret] = max_db
                     data_by_pickup[csv_key]["Attack Time"][fret] = attack_time
                     data_by_pickup[csv_key]["Sustain"][fret] = sustain
                     data_by_pickup[csv_key]["Overtones"][fret] = overtone_formatted
+                    data_by_pickup[csv_key]["Except_Overtone"][fret] = except_overtone
                     
     # 各ピックアップのデータをCSVに書き込み
     for (guitar_name, pickup_position), data in data_by_pickup.items():
@@ -82,13 +97,13 @@ def process_audio_files(input_dir, output_dir):
         headers = ["処理名", "1弦(12フレット)", "2弦(12フレット)", "3弦(12フレット)", "4弦(12フレット)", "5弦(12フレット)", "6弦(12フレット)"]
         rows = []
 
-        for process_name in ["Attack Time", "Sustain", "Overtones"]:
+        for process_name in ["Volume", "Attack Time", "Sustain", "Overtones", "Except_Overtone"]:
             row = [process_name]
             for string_number in range(1, 7):  # 1弦～6弦
                 fret_data_12 = data[process_name].get(string_number * 100 + 12)
                 fret_data = data[process_name].get(string_number)
                 if fret_data and fret_data_12:
-                    row.append(f"{fret_data}-{fret_data_12}")
+                    row.append(f"{fret_data}|{fret_data_12}")
                 else:
                     row.append("")
             rows.append(row)
@@ -102,4 +117,8 @@ def process_audio_files(input_dir, output_dir):
         print(f"Processed data for {guitar_name} - {pickup_position} -> {csv_path}")
 
 # 入力ディレクトリと出力ディレクトリを設定
-# processed_file()
+processed_file()
+input_directory = "./data/processed"
+output_directory = "./output"
+
+process_audio_files(input_directory, output_directory)
