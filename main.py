@@ -88,6 +88,9 @@ def process_audio_files(input_dir, output_dir):
                     data_by_pickup[csv_key]["Sustain"][fret] = sustain
                     data_by_pickup[csv_key]["Overtones"][fret] = overtone_formatted
                     data_by_pickup[csv_key]["Except_Overtone"][fret] = except_overtone
+
+    # chat-gptのプロンプトを生成して、chat-gptにリクエストを送信
+    prompt = init_prompt(guitar_name)
                     
     # 各ピックアップのデータをCSVに書き込み
     for (guitar_name, pickup_position), data in data_by_pickup.items():
@@ -120,42 +123,40 @@ def process_audio_files(input_dir, output_dir):
 
         print(f"Processed data for {guitar_name} - {pickup_position} -> {csv_path}")
         
-        # chat-gptのプロンプトを生成して、chat-gptにリクエストを送信
-        prompt = init_prompt(guitar_name)
 
         with open(csv_path, "r") as f:
             data = f.read()
 
-        prompt = add_prompt(prompt, "以下は{guitar_name}の音に関するcsvデータです。これを元に、指定した項目について評価してください。")
+        prompt = add_prompt(prompt, "以下は{guitar_name}のピックアップポジション{pickup_position}の音に関するcsvデータです。これを元に、指定した項目について評価してください。")
         prompt = add_prompt(prompt, data)
 
-        # chat-gptのレスポンスをguitar.jsonに追加
-        # guitar.jsonのフォーマットは以下の通り
-        # [
-        #     {
-        #       "ギター名": "ギター名",
-        #       "メーカー": "メーカー",
-        #       "メーカーの国": "メーカーの国",
-        #       "音のバランスの評価": "音のバランスの評価",
-        #       "サステインの評価": "サステインの評価",
-        #       "レスポンスの評価": "レスポンスの評価",
-        #       "倍音の評価": "倍音の評価",
-        #       "トーンの評価": "トーンの評価",
-        #       "総合評価": "総合評価"
-        #     }
-        # ]
-        # responseは配列の要素の形式で返ってくるので、配列に追加する
-        response = chat_gpt_api_request(prompt)
+    # chat-gptのレスポンスをguitar.jsonに追加
+    # guitar.jsonのフォーマットは以下の通り
+    # [
+    #     {
+    #       "ギター名": "ギター名",
+    #       "メーカー": "メーカー",
+    #       "メーカーの国": "メーカーの国",
+    #       "音のバランスの評価": "音のバランスの評価",
+    #       "サステインの評価": "サステインの評価",
+    #       "レスポンスの評価": "レスポンスの評価",
+    #       "倍音の評価": "倍音の評価",
+    #       "トーンの評価": "トーンの評価",
+    #       "総合評価": "総合評価"
+    #     }
+    # ]
+    # responseは配列の要素の形式で返ってくるので、配列に追加する
+    response = chat_gpt_api_request(prompt)
 
-        with open("guitar.json", "r") as f:
-            guitar_json = json.load(f)
+    with open("guitar.json", "r") as f:
+        guitar_json = json.load(f)
 
-        guitar_json.append(response)
+    guitar_json.append(response)
 
-        with open("guitar.json", "w") as f:
-            json.dump(guitar_json, f, ensure_ascii=False, indent=4)
+    with open("guitar.json", "w") as f:
+        json.dump(guitar_json, f, ensure_ascii=False, indent=4)
 
-        print(f"Chat-GPT response for {guitar_name} - {pickup_position} -> guitar.json")
+    print(f"Chat-GPT response for {guitar_name} - {pickup_position} -> guitar.json")
 
 # 入力ディレクトリと出力ディレクトリを設定
 processed_file()
