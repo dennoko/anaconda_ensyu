@@ -11,7 +11,7 @@ from processed_file import processed_file
 
 def process_audio_files(input_dir, output_dir):
     data_by_pickup = {}
-
+    processed_file()
     for root, dirs, files in os.walk(input_dir):
         for file in files:
             if file.endswith(".wav"):
@@ -103,7 +103,3 @@ def process_audio_files(input_dir, output_dir):
 
 # 入力ディレクトリと出力ディレクトリを設定
 # processed_file()
-input_directory = "./data/processed"
-output_directory = "./output"
-
-process_audio_files(input_directory, output_directory)
