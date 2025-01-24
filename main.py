@@ -103,7 +103,3 @@ def process_audio_files(input_dir, output_dir):
 
 # 入力ディレクトリと出力ディレクトリを設定
 # processed_file()
-# input_directory = "./data/processed"
-# output_directory = "./output"
-
-# process_audio_files(input_directory, output_directory)
