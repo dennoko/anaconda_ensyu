@@ -17,6 +17,7 @@ from api.chatgpt_api_with_openai import add_prompt
 
 def process_audio_files(input_dir, output_dir):
     data_by_pickup = {}
+    new_guitar_name = ""
     processed_file()
     for root, dirs, files in os.walk(input_dir):
         for file in files:
@@ -53,6 +54,8 @@ def process_audio_files(input_dir, output_dir):
                 if os.path.exists(csv_path):
                     print(f"CSV already exists. Skipping: {csv_path}")
                     continue 
+
+                new_guitar_name = guitar_name
                 
                 # 音声ファイルを読み込み
                 sound = AudioSegment.from_wav(processed_file_path)
@@ -88,11 +91,9 @@ def process_audio_files(input_dir, output_dir):
                     data_by_pickup[csv_key]["Sustain"][fret] = sustain
                     data_by_pickup[csv_key]["Overtones"][fret] = overtone_formatted
                     data_by_pickup[csv_key]["Except_Overtone"][fret] = except_overtone
-
-    # chat-gptのプロンプトを生成して、chat-gptにリクエストを送信
-    prompt = init_prompt(guitar_name)
                     
     # 各ピックアップのデータをCSVに書き込み
+    prompt = ""
     for (guitar_name, pickup_position), data in data_by_pickup.items():
         csv_path = os.path.join(output_dir, f"{guitar_name}_{pickup_position}.csv")
         os.makedirs(os.path.dirname(csv_path), exist_ok=True)
@@ -127,8 +128,14 @@ def process_audio_files(input_dir, output_dir):
         with open(csv_path, "r") as f:
             data = f.read()
 
-        prompt = add_prompt(prompt, "以下は{guitar_name}のピックアップポジション{pickup_position}の音に関するcsvデータです。これを元に、指定した項目について評価してください。")
+        prompt = add_prompt(prompt, f"以下は{guitar_name}のピックアップポジション{pickup_position}の音に関するcsvデータです。")
         prompt = add_prompt(prompt, data)
+        print(f"Chat-GPT prompt for {guitar_name} - {pickup_position} -> chat-gpt")
+
+    # chat-gptのプロンプトを生成して、chat-gptにリクエストを送信
+    initialized_prompt = init_prompt(new_guitar_name)
+    prompt = add_prompt(initialized_prompt, prompt)
+    print(f"init_prompt  guitar_name: {new_guitar_name}")
 
     # chat-gptのレスポンスをguitar.jsonに追加
     # guitar.jsonのフォーマットは以下の通り
@@ -145,18 +152,22 @@ def process_audio_files(input_dir, output_dir):
     #       "総合評価": "総合評価"
     #     }
     # ]
-    # responseは配列の要素の形式で返ってくるので、配列に追加する
+    # responseはjson配列の要素の形式のstringで返ってくるので、配列に追加する
+    #print(f"Sending prompt: {prompt}")
     response = chat_gpt_api_request(prompt)
 
-    with open("guitar.json", "r") as f:
+    # responseをjsonに変換
+    response = json.loads(response)
+
+    with open("./src/static/js/guitars.json", "r") as f:
         guitar_json = json.load(f)
 
     guitar_json.append(response)
 
-    with open("guitar.json", "w") as f:
+    with open("./src/static/js/guitars.json", "w") as f:
         json.dump(guitar_json, f, ensure_ascii=False, indent=4)
 
-    print(f"Chat-GPT response for {guitar_name} - {pickup_position} -> guitar.json")
+    print(f"Chat-GPT response for {new_guitar_name} - {pickup_position} -> guitars.json")
 
 # 入力ディレクトリと出力ディレクトリを設定
 processed_file()
