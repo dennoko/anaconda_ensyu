@@ -1,0 +1,17 @@
+{
+    "directories": [
+        "original",
+        "ST_CENTER",
+        "ES_FRONT",
+        "ROADSTAR_REAR",
+        "ST_REAR",
+        "ST_CR",
+        "ES_REAR",
+        "ROADSTAR_FRONT",
+        "ST_FC",
+        "ST_FRONT",
+        "ES_MIX",
+        "ROADSTAR_MIX",
+        "PACIFICA_CENTER"
+    ]
+}
