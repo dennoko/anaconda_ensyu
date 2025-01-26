@@ -12,6 +12,7 @@ def chat_gpt_api_request(prompt):
 
     client = OpenAI(api_key="OPENAI_API_KEY")
 
+    print("Chat-GPT request -> chat-gpt")
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         temperature=0.0, # tempratureとは、生成されるテキストの多様性を調整するためのパラメータ。0.0に設定すると、生成されるテキストは最も確信度の高いものになる。
@@ -40,12 +41,16 @@ def init_prompt(guitar_name):
 
     guitar_name = guitar_name
 
-    base_prompt = """
+    base_prompt = f"""
     ### 回答ルール
+    以下の回答ルールは最優先で守ってください。
     - ユーザーが提供する情報を元に、指定されたJSON形式に合わせて各項目の文章を生成してください。
     - 文章は、提供された数値データにしたがって論理的に展開してください。
+    - 文章中には具体的な数値データを含めてください。
+    - また、メーカーとメーカーの国についてはギター名に基づいて決めてください。
+    - 各項目について、300文字以上のレビューを生成し、ピックアップポジションの違いによる差についても書いてください。
     - ギター名は{guitar_name}です。
-
+    """ + """
     ### 期待されるJsonレスポンス
     ```json
     {
@@ -68,17 +73,3 @@ def init_prompt(guitar_name):
 def add_prompt(prompt, add_prompt):
     # promptを改行してadd_promptを追加する
     return prompt + "\n" + add_prompt
-
-if __name__ == "__main__":
-    guitar_name = "Fender Stratocaster"
-    prompt = init_prompt(guitar_name)
-    
-    # promptに、output/YAMAHA_PACIFICA_PACIFICA_CENTER.csvのデータを追加する
-    with open("output/YAMAHA_PACIFICA_PACIFICA_CENTER.csv", "r") as f:
-        data = f.read()
-
-    prompt = add_prompt(prompt, "以下はYAMAHA PACIFICAの音に関するcsvデータです。これを元に、指定した項目について評価してください。")
-    prompt = add_prompt(prompt, data)
-
-    response = chat_gpt_api_request(prompt)
-    print(response)
